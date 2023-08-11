@@ -16,12 +16,12 @@
     'use strict';
 
     var buttonsContainer;
+    var toggleButton; // 添加 toggleButton 变量
+    var isExpanded = false;
 
-    function createButton(text, clickHandler, isExpanded) {
+    function createButton(text, clickHandler) {
         var button = document.createElement("button");
         button.textContent = text;
-        // button.style.width = "120px";
-        button.style.align = "center";
         button.style.color = "#FFFFFF";
         button.style.background = "#00AEEC";
         button.style.border = "1px solid #F1F2F3";
@@ -30,54 +30,43 @@
         button.style.padding = "8px";
         button.style.marginLeft = '8px';
 
-        button.addEventListener("click", function () {
-            clickHandler();
-            if (isExpanded) {
-                button.textContent = "展开解析";
-            } else {
-                button.textContent = "收回解析";
-            }
-            isExpanded = !isExpanded;
-        });
+        button.addEventListener("click", clickHandler);
         return button;
     }
 
     function toggleButtonsVisibility() {
-        if (buttonsContainer.style.display === "none") {
+        if (!buttonsContainer) {
+            return;
+        }
+
+        if (!isExpanded) {
             buttonsContainer.style.display = "block";
         } else {
             buttonsContainer.style.display = "none";
         }
+        isExpanded = !isExpanded;
+        toggleButton.textContent = isExpanded ? "收回解析" : "展开解析";
     }
 
-function addButtonContainer(json) {
-    var likeComment = document.getElementsByClassName('flex-block')[0];
-    if (!likeComment){
-        likeComment = document.getElementsByClassName('left-entry')[0];
-    }
-
-    buttonsContainer = document.createElement("div");
-    buttonsContainer.style.display = "none"; // 初始状态为已折叠
-
-    var toggleButton = createButton("展开解析", toggleButtonsVisibility, false);
-    likeComment.appendChild(toggleButton);
-    function toggleButtonsVisibility() {
-        if (buttonsContainer.style.display === "none") {
-            buttonsContainer.style.display = "block";
-            toggleButton.textContent = "收回解析"; // 更新按钮文字
-        } else {
-            buttonsContainer.style.display = "none";
-            toggleButton.textContent = "展开解析"; // 更新按钮文字
+    function addButtonContainer(json) {
+        var likeComment = document.getElementsByClassName('flex-block')[0];
+        if (!likeComment) {
+            likeComment = document.getElementsByClassName('left-entry')[0];
         }
-    }
 
-    var hlsStream = json.data.playurl_info.playurl.stream.find(function (stream) {
-        return stream.protocol_name === 'http_hls';
-    });
-    var formatCount = {}; // 用于记录每个 format_name 的计数
+        buttonsContainer = document.createElement("div");
+        buttonsContainer.style.display = "none";
 
-    if (hlsStream) {
-            for (var formatIndex = 0; formatIndex < hlsStream.format.length; formatIndex++) {
+        toggleButton = createButton("展开解析", toggleButtonsVisibility);
+        likeComment.appendChild(toggleButton);
+
+        var hlsStream = json.data.playurl_info.playurl.stream.find(function (stream) {
+            return stream.protocol_name === 'http_hls';
+        });
+        var formatCount = {}; // 用于记录每个 format_name 的计数
+
+        if (hlsStream) {
+           for (var formatIndex = 0; formatIndex < hlsStream.format.length; formatIndex++) {
                 var formatName = hlsStream.format[formatIndex].format_name;
 
 
@@ -114,15 +103,15 @@ function addButtonContainer(json) {
                     }
                 }
             }
-    } else {
-        // 在界面上显示未找到 http_hls 流的提示
-        var errorMessage = document.createElement("div");
-        errorMessage.textContent = "未找到 http_hls 流。";
-        buttonsContainer.appendChild(errorMessage);
-    }
+        } else {
+            // 在界面上显示未找到 http_hls 流的提示
+            var errorMessage = document.createElement("div");
+            errorMessage.textContent = "未找到 http_hls 流。";
+            buttonsContainer.appendChild(errorMessage);
+        }
 
-    likeComment.appendChild(buttonsContainer);
-}
+        likeComment.appendChild(buttonsContainer);
+    }
 
     function fetchAndAddButtons() {
         var url = window.location.href;
