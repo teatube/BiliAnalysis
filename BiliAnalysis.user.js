@@ -17,6 +17,8 @@
 
 (function () {
     'use strict';
+
+    // 解析按钮组件属性
     var button = document.createElement("button");
     button.textContent = "本地解析";
     button.style.width = "80px";
@@ -29,31 +31,32 @@
     button.style.marginLeft = '8px';
     button.style.padding = "6px";
     button.addEventListener("click", clickButton);
-    setTimeout(function () {
-        var likeComment = document.getElementsByClassName('left-entry')[0];
-        if (!likeComment) likeComment = document.getElementsByClassName('nav-link-ul')[0];
-        if (!likeComment) likeComment = document.getElementsByClassName('nav-link-ul')[0];
-        if (!likeComment) console.error("组件放置失败");
-        likeComment.appendChild(button);
-    }, 5000);
 
+    // 尝试放置按钮5次
+    function attemptAddButton() {
+        var targetPlace = document.getElementsByClassName('left-entry')[0];
+        if (!targetPlace) targetPlace = document.getElementsByClassName('nav-link-ul')[0];
+        targetPlace.appendChild(button);
+    }
+    for(var i=1;i<=5;i++) setTimeout(attemptAddButton, 1000*i);
+
+    // 解析操作
     function clickButton() {
+        button.textContent = "解析中...";
+        button.style.background = "#ECAE00";
+        button.removeEventListener("click", clickButton);
+
         var url = window.location.href;
-        var urlParams = new URLSearchParams(window.location.search);
-        var bvid = urlParams.get('bvid');
+        var bvid = new URLSearchParams(window.location.search).get('bvid');
         if (!bvid) {
             var matchBv = url.match(/(?<=video\/).*?(?=\/|$)/);
-            if (!matchBv) {
-                console.error("BV号未找到");
-                return;
-            }
-            bvid = matchBv[0];
+            if (matchBv) bvid = matchBv[0];
         }
-        var P = /(?<=p=).*?(?=&vd)/;
-        var P1 = url.match(P);
-        if (P1 == null) {
-            P1 = 1;
-        }
+        if (!bvid) return console.error("BV号未找到");
+
+        var P1 = url.match(/(?<=p=).*?(?=&vd)/);
+        if (P1 == null) P1 = 1;
+
         var httpRequest = new XMLHttpRequest();
         httpRequest.open('GET', 'https://api.bilibili.com/x/player/pagelist?bvid=' + bvid, true);
         httpRequest.send();
@@ -72,18 +75,15 @@
                         navigator.clipboard.writeText(json.data.durl[0].url).catch(e => console.error(e));
                         console.log(json.data.durl[0].url);
                     }
+                    button.textContent = "解析成功";
+                    button.style.background = "#00ECAE";
+                    setTimeout(function () {
+                        button.textContent = "本地解析";
+                        button.style.background = "#00AEEC";
+                        button.addEventListener("click", clickButton);
+                    }, 2600);
                 };
             }
         };
-        GM_notification({
-            title: "解析成功",
-            image: "https://i0.hdslb.com/bfs/archive/86848c76a76fe46d84d6ef1ab735d9398ed3ee8e.png",
-            text: "解析成功",
-            highlight: true,
-            silent: false,
-            timeout: 10000,
-            onclick: function () {},
-            ondone() {}
-        });
     }
 })();
