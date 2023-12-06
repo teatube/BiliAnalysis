@@ -1,12 +1,13 @@
 // ==UserScript==
-// @name         BiliBili本地解析(Miro)·茶叶改
+// @name         BiliBili本地解析(Miro)·茶叶改·Z改
 // @namespace    https://bbs.tampermonkey.net.cn/
 // @version      0.1.2
 // @description  基于Miro_355的b站解析脚本(https://www.bilibili.com/video/BV1AP411x7YW/)
-// @author       Miro(https://vrchat.com/home/user/usr_20b8e0e4-9e16-406a-a61d-8a627ec1a2e3),-茶叶子-(https://vrchat.com/home/user/usr_411b8ebe-a9a9-4987-a4c8-5e17c898a311)
+// @author       Miro(https://vrchat.com/home/user/usr_20b8e0e4-9e16-406a-a61d-8a627ec1a2e3), -茶叶子-(https://vrchat.com/home/user/usr_411b8ebe-a9a9-4987-a4c8-5e17c898a311), MrZ_26(https://vrchat.com/home/user/usr_90460f0c-be4c-4f13-a828-577f40ab70e1)
 // @downloadURL  https://raw.githubusercontent.com/teatube/BiliAnalysis/main/BiliAnalysis.user.js
 // @updateURL    https://raw.githubusercontent.com/teatube/BiliAnalysis/main/BiliAnalysis.user.js
 // @match        https://www.bilibili.com/video/*
+// @match        https://www.bilibili.com/list/*
 // @match        https://www.bilibili.com/festival/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_notification
@@ -30,9 +31,9 @@
     button.addEventListener("click", clickButton);
     setTimeout(function () {
         var likeComment = document.getElementsByClassName('left-entry')[0];
-        if (!likeComment){
-           likeComment = document.getElementsByClassName('nav-link-ul')[0];
-        }
+        if (!likeComment) likeComment = document.getElementsByClassName('nav-link-ul')[0];
+        if (!likeComment) likeComment = document.getElementsByClassName('nav-link-ul')[0];
+        if (!likeComment) console.error("组件放置失败");
         likeComment.appendChild(button);
     }, 5000);
 
